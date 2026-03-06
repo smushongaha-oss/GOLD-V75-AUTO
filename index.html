@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>V75 Trend Catcher</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #070b12;
+      --panel:     #0d1521;
+      --border:    #1a2e4a;
+      --accent:    #00e5ff;
+      --green:     #00ff88;
+      --red:       #ff3b6b;
+      --yellow:    #ffd166;
+      --dim:       #3a5068;
+      --text:      #c8dff0;
+      --mono:      'Share Tech Mono', monospace;
+      --sans:      'Rajdhani', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* grid noise overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+
+    /* ── HEADER ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px; margin-bottom: 28px;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 1.4rem; letter-spacing: .15em;
+      color: var(--accent);
+    }
+    .logo span { color: var(--yellow); }
+    .live-badge {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: .75rem; color: var(--green);
+    }
+    .live-badge::before {
+      content: '';
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: blink 1.4s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* ── STAT BAR ── */
+    .stat-bar {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 12px; margin-bottom: 24px;
+    }
+    .stat {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 16px;
+      position: relative; overflow: hidden;
+    }
+    .stat::after {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--accent);
+    }
+    .stat-label { font-size: .65rem; letter-spacing: .1em; color: var(--dim); margin-bottom: 6px; }
+    .stat-value { font-family: var(--mono); font-size: 1.05rem; color: var(--accent); }
+    .stat-value.up   { color: var(--green); }
+    .stat-value.down { color: var(--red); }
+
+    /* ── CHART PLACEHOLDER ── */
+    .chart-box {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+      margin-bottom: 24px; position: relative;
+    }
+    .chart-box h2 {
+      font-family: var(--mono); font-size: .8rem;
+      letter-spacing: .12em; color: var(--dim); margin-bottom: 16px;
+    }
+    .chart-area {
+      width: 100%; height: 220px;
+      position: relative; overflow: hidden;
+    }
+    /* animated fake candlestick line */
+    .chart-area canvas { width:100%; height:100%; display:block; }
+
+    /* ── SIGNAL ROW ── */
+    .signal-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-bottom: 24px;
+    }
+
+    /* ── SIGNAL CARD ── */
+    .signal-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+    }
+    .signal-card h3 {
+      font-size: .7rem; letter-spacing: .15em; color: var(--dim);
+      margin-bottom: 14px;
+    }
+    .signal-value {
+      font-family: var(--mono); font-size: 2rem; font-weight: 700;
+      line-height: 1;
+    }
+    .signal-value.buy  { color: var(--green); text-shadow: 0 0 20px rgba(0,255,136,.4); }
+    .signal-value.sell { color: var(--red);   text-shadow: 0 0 20px rgba(255,59,107,.4); }
+    .signal-value.wait { color: var(--yellow);}
+    .signal-sub { font-size: .75rem; color: var(--dim); margin-top: 6px; }
+
+    /* ── CHECKLIST ── */
+    .checklist {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px; margin-bottom: 24px;
+    }
+    .checklist h3 {
+      font-size: .7rem; letter-spacing: .15em; color: var(--dim); margin-bottom: 16px;
+    }
+    .check-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      font-size: .9rem;
+    }
+    .check-item:last-child { border-bottom: none; }
+    .check-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .check-dot.ok   { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .check-dot.warn { background: var(--yellow); }
+    .check-dot.bad  { background: var(--red); }
+    .check-label { flex: 1; }
+    .check-status { font-family: var(--mono); font-size: .8rem; }
+    .check-status.ok   { color: var(--green); }
+    .check-status.warn { color: var(--yellow); }
+    .check-status.bad  { color: var(--red); }
+
+    /* ── EMA TABLE ── */
+    .ema-table {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; margin-bottom: 24px;
+    }
+    .ema-table h3 {
+      font-size: .7rem; letter-spacing: .15em; color: var(--dim);
+      padding: 16px 20px 8px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      font-size: .65rem; letter-spacing: .1em; color: var(--dim);
+      text-align: left; padding: 8px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody td {
+      padding: 11px 20px; font-family: var(--mono); font-size: .85rem;
+      border-bottom: 1px solid rgba(26,46,74,.5);
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    .tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: .7rem; font-family: var(--mono);
+    }
+    .tag.bull { background: rgba(0,255,136,.12); color: var(--green); }
+    .tag.bear { background: rgba(255,59,107,.12); color: var(--red); }
+    .tag.neut { background: rgba(255,209,102,.12); color: var(--yellow); }
+
+    /* ── RULES BOX ── */
+    .rules {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+    }
+    .rules h3 {
+      font-size: .7rem; letter-spacing: .15em; color: var(--dim); margin-bottom: 14px;
+    }
+    .rule-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 8px 0; border-bottom: 1px solid rgba(26,46,74,.5);
+      font-size: .88rem; line-height: 1.5;
+    }
+    .rule-item:last-child { border-bottom: none; }
+    .rule-num {
+      font-family: var(--mono); font-size: .7rem; color: var(--accent);
+      background: rgba(0,229,255,.08); border: 1px solid rgba(0,229,255,.2);
+      border-radius: 4px; padding: 1px 6px; flex-shrink: 0; margin-top: 2px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; font-size: .7rem; color: var(--dim);
+      margin-top: 40px; font-family: var(--mono); letter-spacing: .08em;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:600px){
+      .stat-bar { grid-template-columns: 1fr 1fr; }
+      .signal-row { grid-template-columns: 1fr; }
+      .signal-value { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">V<span>75</span> TREND CATCHER</div>
+    <div class="live-badge">LIVE MONITOR</div>
+  </header>
+
+  <!-- STAT BAR -->
+  <div class="stat-bar">
+    <div class="stat">
+      <div class="stat-label">CURRENT PRICE</div>
+      <div class="stat-value" id="price">33,575.30</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">SPREAD</div>
+      <div class="stat-value">0.50</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">TREND (1H)</div>
+      <div class="stat-value up" id="trend1h">BULLISH ↑</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">RSI (14)</div>
+      <div class="stat-value" id="rsi">62.4</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-box">
+    <h2>// PRICE ACTION — V75 (5 MIN)</h2>
+    <div class="chart-area">
+      <canvas id="sparkChart"></canvas>
+    </div>
+  </div>
+
+  <!-- SIGNAL ROW -->
+  <div class="signal-row">
+    <div class="signal-card">
+      <h3>// AI SIGNAL</h3>
+      <div class="signal-value buy" id="aiSignal">BUY</div>
+      <div class="signal-sub">EMA crossover confirmed · RSI bullish</div>
+    </div>
+    <div class="signal-card">
+      <h3>// TRADE SETUP</h3>
+      <div style="font-family:var(--mono); font-size:.85rem; line-height:2;">
+        <div>ENTRY &nbsp;&nbsp;<span style="color:var(--accent)" id="entry">33,575</span></div>
+        <div>SL &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--red)"   id="sl">33,375</span></div>
+        <div>TP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--green)" id="tp">33,975</span></div>
+        <div>R:R &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--yellow)">1 : 2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="checklist">
+    <h3>// TREND CONFIRMATION CHECKLIST</h3>
+    <div class="check-item">
+      <div class="check-dot ok"></div>
+      <div class="check-label">EMA8 crossed above EMA21</div>
+      <div class="check-status ok">✓ YES</div>
+    </div>
+    <div class="check-item">
+      <div class="check-dot ok"></div>
+      <div class="check-label">Price is above EMA50</div>
+      <div class="check-status ok">✓ YES</div>
+    </div>
+    <div class="check-item">
+      <div class="check-dot ok"></div>
+      <div class="check-label">RSI above 55 and rising</div>
+      <div class="check-status ok">✓ YES</div>
+    </div>
+    <div class="check-item">
+      <div class="check-dot warn"></div>
+      <div class="check-label">Price riding upper Bollinger Band</div>
+      <div class="check-status warn">~ NEAR</div>
+    </div>
+    <div class="check-item">
+      <div class="check-dot ok"></div>
+      <div class="check-label">1H trend aligns with 5min entry</div>
+      <div class="check-status ok">✓ YES</div>
+    </div>
+    <div class="check-item">
+      <div class="check-dot bad"></div>
+      <div class="check-label">No major spike wick in last 3 candles</div>
+      <div class="check-status bad">✗ SPIKE</div>
+    </div>
+  </div>
+
+  <!-- EMA TABLE -->
+  <div class="ema-table">
+    <h3>// EMA LEVELS</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>INDICATOR</th>
+          <th>VALUE</th>
+          <th>PRICE vs EMA</th>
+          <th>BIAS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>EMA 8</td>
+          <td>33,551.08</td>
+          <td style="color:var(--green)">Above ↑</td>
+          <td><span class="tag bull">BULLISH</span></td>
+        </tr>
+        <tr>
+          <td>EMA 21</td>
+          <td>33,531.52</td>
+          <td style="color:var(--green)">Above ↑</td>
+          <td><span class="tag bull">BULLISH</span></td>
+        </tr>
+        <tr>
+          <td>EMA 50</td>
+          <td>33,490.00</td>
+          <td style="color:var(--green)">Above ↑</td>
+          <td><span class="tag bull">BULLISH</span></td>
+        </tr>
+        <tr>
+          <td>BB Mid</td>
+          <td>33,520.00</td>
+          <td style="color:var(--yellow)">Near Upper</td>
+          <td><span class="tag neut">WATCH</span></td>
+        </tr>
+        <tr>
+          <td>RSI (14)</td>
+          <td>62.4</td>
+          <td>—</td>
+          <td><span class="tag bull">BULLISH</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RULES -->
+  <div class="rules">
+    <h3>// V75 ENTRY RULES</h3>
+    <div class="rule-item">
+      <span class="rule-num">01</span>
+      Only trade when all 3 EMAs are aligned (8 > 21 > 50 for buys)
+    </div>
+    <div class="rule-item">
+      <span class="rule-num">02</span>
+      RSI must be above 55 for buy, below 45 for sell — avoid 45–55 range
+    </div>
+    <div class="rule-item">
+      <span class="rule-num">03</span>
+      Enter on the next candle open after EMA crossover — never chase
+    </div>
+    <div class="rule-item">
+      <span class="rule-num">04</span>
+      Stop loss minimum 150–200 pts away (V75 spikes are brutal)
+    </div>
+    <div class="rule-item">
+      <span class="rule-num">05</span>
+      Take profit at 2× your stop distance — always keep R:R ≥ 1:2
+    </div>
+    <div class="rule-item">
+      <span class="rule-num">06</span>
+      Max 1–2% account risk per trade — no revenge trading
+    </div>
+    <div class="rule-item">
+      <span class="rule-num">07</span>
+      Use 1H for direction · 15min for confirmation · 5min for entry
+    </div>
+  </div>
+
+  <footer>V75 TREND CATCHER · BUILD YOUR OWN SIGNALS · DERIV PLATFORM</footer>
+</div>
+
+<script>
+  /* ── Sparkline canvas ── */
+  (function() {
+    const canvas = document.getElementById('sparkChart');
+    const ctx = canvas.getContext('2d');
+    let pts = [];
+    let base = 33575;
+
+    function resize() {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+
+    function generatePoints(n) {
+      pts = [];
+      let v = base;
+      for (let i = 0; i < n; i++) {
+        v += (Math.random() - 0.46) * 30;
+        pts.push(v);
+      }
+    }
+
+    function draw() {
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const min = Math.min(...pts) - 20;
+      const max = Math.max(...pts) + 20;
+      const range = max - min;
+
+      const x = i => (i / (pts.length - 1)) * W;
+      const y = v => H - ((v - min) / range) * H;
+
+      // Gradient fill
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, 'rgba(0,229,255,.25)');
+      grad.addColorStop(1, 'rgba(0,229,255,0)');
+
+      ctx.beginPath();
+      ctx.moveTo(x(0), y(pts[0]));
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(x(i), y(pts[i]));
+      }
+      ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Line
+      ctx.beginPath();
+      ctx.moveTo(x(0), y(pts[0]));
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(x(i), y(pts[i]));
+      }
+      ctx.strokeStyle = '#00e5ff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Last price dot
+      const lx = x(pts.length - 1), ly = y(pts[pts.length - 1]);
+      ctx.beginPath();
+      ctx.arc(lx, ly, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#00e5ff';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(lx, ly, 9, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(0,229,255,.3)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function tick() {
+      // Shift and add new point
+      pts.shift();
+      let last = pts[pts.length - 1];
+      last += (Math.random() - 0.46) * 25;
+      pts.push(last);
+
+      // Update DOM price
+      document.getElementById('price').textContent = last.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+      const entry = Math.round(last);
+      const sl    = entry - 200;
+      const tp    = entry + 400;
+      document.getElementById('entry').textContent = entry.toLocaleString();
+      document.getElementById('sl').textContent    = sl.toLocaleString();
+      document.getElementById('tp').textContent    = tp.toLocaleString();
+
+      draw();
+    }
+
+    resize();
+    generatePoints(80);
+    draw();
+    window.addEventListener('resize', () => { resize(); draw(); });
+    setInterval(tick, 1200);
+  })();
+</script>
+</body>
+</html>
