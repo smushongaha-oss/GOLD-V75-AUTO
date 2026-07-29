@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BTCUSD + XAUUSD Solid Trend Sniper + Groq AI</title>
+<title>XAUUSD Solid Trend Sniper + Groq AI</title>
 <style>
     * { box-sizing: border-box; }
     body {
@@ -47,18 +47,6 @@
     .status-badge.connected { background-color: #4caf50; color: #fff; }
     .status-badge.disconnected { background-color: #f44336; color: #fff; }
 
-    .controls-row {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-    }
-    .controls-row label {
-        font-size: 0.8em;
-        color: #90a4ae;
-        display: block;
-        margin-bottom: 4px;
-    }
     select, input[type=number], input[type=password], input[type=text] {
         background-color: #232d3b;
         color: #fff;
@@ -68,11 +56,6 @@
         font-size: 0.95em;
         width: 100%;
     }
-    .symbol-picker { flex: 2; min-width: 160px; }
-    .strategy-picker { flex: 2; min-width: 160px; }
-
-    [data-strategy-fields] { display: none; }
-    [data-strategy-fields].active { display: block; }
 
     details.settings {
         background-color: #202836;
@@ -126,7 +109,6 @@
         font-size: 0.75em;
         cursor: pointer;
     }
-    button.clear-btn:hover { border-color: #f44336; color: #f44336; }
 
     .chart-box {
         width: 100%;
@@ -225,11 +207,7 @@
         font-weight: bold;
         color: #90caf9;
         margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
     }
-    .ai-box #aiText { color: #e3f2fd; }
     .ai-source {
         font-size: 0.75em;
         color: #90caf9;
@@ -270,7 +248,6 @@
     table.history-table th { color: #90a4ae; font-weight: normal; }
     .dir-buy { color: #81c784; font-weight: bold; }
     .dir-sell { color: #ef9a9a; font-weight: bold; }
-    .dir-over { color: #ffca28; font-weight: bold; }
     .empty-history { color: #607d8b; text-align: center; padding: 12px; font-size: 0.85em; }
 
     #logConsole {
@@ -279,7 +256,6 @@
         color: #ff8a80;
         text-align: center;
         min-height: 1em;
-        white-space: pre-wrap;
     }
     .disclaimer {
         margin-top: 16px;
@@ -295,9 +271,7 @@
         font-size: 0.72em;
         color: #90a4ae;
         margin-bottom: 8px;
-        flex-wrap: wrap;
     }
-    .legend span { display: flex; align-items: center; gap: 4px; }
     .legend i {
         width: 12px; height: 3px; display: inline-block; border-radius: 2px;
     }
@@ -307,74 +281,44 @@
 
 <div class="container">
     <div class="header">
-        <h2 id="dashTitle">BTCUSD + XAUUSD Trend Sniper</h2>
+        <h2>XAUUSD Solid Trend Sniper</h2>
         <span id="connectionStatus" class="status-badge disconnected">Connecting...</span>
     </div>
 
-    <div class="controls-row">
-        <div class="symbol-picker">
-            <label for="symbolSelect">Symbol</label>
-            <select id="symbolSelect">
-                <option value="cryBTCUSD" selected>BTCUSD</option>
-                <option value="frxXAUUSD">XAUUSD (Gold)</option>
-                <option value="cryETHUSD">ETHUSD</option>
-                <option value="cryLTCUSD">LTCUSD</option>
-                <option value="cryBCHUSD">BCHUSD</option>
-                <option value="cryXRPUSD">XRPUSD</option>
-            </select>
-        </div>
-        <div class="strategy-picker">
-            <label for="strategySelect">Strategy</label>
-            <select id="strategySelect">
-                <option value="sma">Solid Trend (EMA)</option>
-                <option value="lastdigit">Last Digit</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="tf-box" id="tfBox">
-        <strong>Best Timeframes</strong><br>
+    <div class="tf-box">
+        <strong>Best Timeframes for XAUUSD (Gold)</strong><br>
         • Primary: <strong>M5</strong> and <strong>M15</strong><br>
         • Secondary: <strong>M30</strong> / H1<br>
-        • Works well on both BTCUSD and XAUUSD<br>
-        Use same EMAs (14 / 30 / 80) on MT5.
+        • Avoid pure tick charts for entries<br>
+        Use the same EMAs (14 / 30 / 80) on MT5.
     </div>
 
-    <details class="settings" id="settingsPanel">
+    <details class="settings">
         <summary>Settings &amp; Alerts</summary>
         <div class="settings-body">
-            <div data-strategy-fields="sma" class="active">
+            <div>
                 <label for="fastPeriod">Fast EMA</label>
                 <input type="number" id="fastPeriod" min="5" max="40" value="14">
             </div>
-            <div data-strategy-fields="sma" class="active">
+            <div>
                 <label for="slowPeriod">Mid EMA</label>
                 <input type="number" id="slowPeriod" min="15" max="80" value="30">
             </div>
-            <div data-strategy-fields="sma" class="active">
+            <div>
                 <label for="trendPeriod">Slow EMA (long trend)</label>
                 <input type="number" id="trendPeriod" min="40" max="200" value="80">
             </div>
-            <div data-strategy-fields="sma" class="active">
+            <div>
                 <label for="tpOffset">TP offset (points)</label>
-                <input type="number" id="tpOffset" min="20" step="10" value="150">
+                <input type="number" id="tpOffset" min="10" step="5" value="80">
             </div>
-            <div data-strategy-fields="sma" class="active">
+            <div>
                 <label for="confirmTicks">Confirm ticks</label>
                 <input type="number" id="confirmTicks" min="2" max="12" value="5">
             </div>
-            <div data-strategy-fields="sma" class="active">
+            <div>
                 <label for="minSeparation">Min EMA gap %</label>
                 <input type="number" id="minSeparation" min="0" step="0.005" value="0.04">
-            </div>
-
-            <div data-strategy-fields="lastdigit">
-                <label for="windowSize">Rolling window</label>
-                <input type="number" id="windowSize" min="10" max="1000" value="100">
-            </div>
-            <div data-strategy-fields="lastdigit">
-                <label for="digitThreshold">Threshold %</label>
-                <input type="number" id="digitThreshold" min="0" max="100" step="0.1" value="10.0">
             </div>
 
             <div class="full">
@@ -387,14 +331,14 @@
                 <input type="checkbox" id="soundToggle" checked>
             </div>
             <div class="full toggle-row">
-                <span>🔔 Browser notification on signal</span>
+                <span>🔔 Browser notification</span>
                 <input type="checkbox" id="notifyToggle" checked>
             </div>
             <button class="apply-btn" id="applyBtn">Apply &amp; restart feed</button>
         </div>
     </details>
 
-    <div class="legend" id="emaLegend">
+    <div class="legend">
         <span><i style="background:#00e5ff"></i> Fast EMA</span>
         <span><i style="background:#ff9800"></i> Mid EMA</span>
         <span><i style="background:#ce93d8"></i> Slow EMA</span>
@@ -408,7 +352,7 @@
     </div>
 
     <div class="price-card">
-        <div class="detail-label" id="priceLabel">REAL-TIME TICK PRICE</div>
+        <div style="font-size:0.85em;color:#90a4ae;">REAL-TIME XAUUSD (GOLD)</div>
         <div id="livePrice" class="price-value">0.00</div>
         <div id="lastUpdate" style="font-size: 0.8em; color: #78909c;">Connecting...</div>
         <div class="trend-info" id="trendInfo">Trend: —</div>
@@ -424,7 +368,7 @@
         Connecting to feed...
     </div>
 
-    <div class="details-grid" id="smaDetailsGrid">
+    <div class="details-grid">
         <div class="detail-item">
             <div class="detail-label">Entry Price</div>
             <div id="entryPrice" class="detail-value">--</div>
@@ -435,8 +379,6 @@
         </div>
     </div>
 
-    <div class="digit-grid" id="digitGrid" style="display:none;"></div>
-
     <div class="history-section">
         <div class="history-header">
             <h3>Signal history</h3>
@@ -444,7 +386,7 @@
         </div>
         <table class="history-table">
             <thead>
-                <tr><th>Time</th><th>Symbol</th><th>Signal</th><th>Detail 1</th><th>Detail 2</th></tr>
+                <tr><th>Time</th><th>Signal</th><th>Entry</th><th>TP</th></tr>
             </thead>
             <tbody id="historyBody"></tbody>
         </table>
@@ -453,7 +395,7 @@
 
     <div id="logConsole"></div>
     <div class="disclaimer">
-        Public Deriv API (BTCUSD + XAUUSD) + optional free Groq AI<br>
+        XAUUSD (Gold) only • Public Deriv API + optional free Groq AI<br>
         Experimental — not financial advice.
     </div>
 </div>
@@ -461,36 +403,24 @@
 <script>
     const PUBLIC_WS = 'wss://api.derivws.com/trading/v1/options/ws/public';
     const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+    const SYMBOL = 'frxXAUUSD';   // XAUUSD on Deriv
 
-    const SYMBOL_NAMES = {
-        cryBTCUSD: 'BTCUSD',
-        frxXAUUSD: 'XAUUSD (Gold)',
-        cryETHUSD: 'ETHUSD',
-        cryLTCUSD: 'LTCUSD',
-        cryBCHUSD: 'BCHUSD',
-        cryXRPUSD: 'XRPUSD'
-    };
-
-    const STORAGE_KEY = 'derivMulti_v1';
-    const HISTORY_KEY = 'derivMultiHistory_v1';
+    const STORAGE_KEY = 'xauusd_trend_v1';
+    const HISTORY_KEY = 'xauusd_history_v1';
     const CHART_MAX_POINTS = 280;
     const PING_MS = 25000;
     const MAX_MARKERS = 24;
 
     let settings = {
-        symbol: 'cryBTCUSD',
-        strategy: 'sma',
         fastPeriod: 14,
         slowPeriod: 30,
         trendPeriod: 80,
-        tpOffset: 150,
+        tpOffset: 80,
         confirmTicks: 5,
         minSeparation: 0.04,
         rsiPeriod: 14,
         rsiBuyMax: 72,
         rsiSellMin: 28,
-        windowSize: 100,
-        digitThreshold: 10,
         groqKey: '',
         sound: true,
         notify: true
@@ -505,8 +435,6 @@
     let tradeHistory = [];
     let audioCtx = null;
     let lastAICall = 0;
-    let digitBuffer = [], digitCounts = new Array(10).fill(0);
-    let digitBufCount = 0, digitBufHead = 0, lastFiredDigit = -1;
     let chartPoints = [];
     let entryMarkers = [];
 
@@ -545,11 +473,11 @@
                 body: JSON.stringify({
                     model: 'llama-3.1-8b-instant',
                     messages: [
-                        { role: 'system', content: 'You are a concise trading assistant for BTCUSD and XAUUSD (Gold). Give short, clear, actionable insight only. Max 2-3 sentences.' },
+                        { role: 'system', content: 'You are a concise Gold (XAUUSD) trading assistant. Give short, clear, actionable insight only. Max 2-3 sentences.' },
                         { role: 'user', content: prompt }
                     ],
                     temperature: 0.4,
-                    max_tokens: 150
+                    max_tokens: 140
                 })
             });
             if (!res.ok) return null;
@@ -560,19 +488,18 @@
         }
     }
 
-    function ruleBasedAI(solidBull, solidBear, rsi, mom) {
-        const name = SYMBOL_NAMES[settings.symbol] || settings.symbol;
+    function ruleBasedAI(solidBull, solidBear, rsi) {
         let text = '';
         if (solidBull) {
-            text = `Strong bullish stack on ${name}. EMAs cleanly aligned upward with good separation and positive momentum. High-probability long setup.`;
+            text = 'Strong bullish stack on XAUUSD (Gold). EMAs cleanly aligned upward with good separation and positive momentum. High-probability long setup.';
         } else if (solidBear) {
-            text = `Strong bearish stack on ${name}. EMAs cleanly aligned downward with negative momentum. High-probability short setup.`;
+            text = 'Strong bearish stack on XAUUSD (Gold). EMAs cleanly aligned downward. High-probability short setup.';
         } else if (emaFastState > emaMidState && emaMidState > emaSlowState) {
-            text = `Weak upward structure forming on ${name}. Gaps or momentum still insufficient. Wait for clearer separation.`;
+            text = 'Weak upward structure forming on Gold. Gaps or momentum still insufficient. Wait for clearer separation.';
         } else if (emaFastState < emaMidState && emaMidState < emaSlowState) {
-            text = `Weak downward structure forming on ${name}. Not solid enough yet. Patience required.`;
+            text = 'Weak downward structure forming on Gold. Not solid enough yet. Patience required.';
         } else {
-            text = `${name} is ranging / mixed. No clear directional bias. Stay flat and wait for a clean EMA stack.`;
+            text = 'XAUUSD is ranging / mixed. No clear directional bias. Stay flat and wait for a clean EMA stack.';
         }
         if (rsi !== null) {
             if (rsi > 70) text += ' RSI elevated — caution on new longs.';
@@ -583,10 +510,9 @@
 
     async function updateAI(solidBull, solidBear, rsi, mom, gapFastMid, gapMidSlow, price) {
         const now = Date.now();
-        const name = SYMBOL_NAMES[settings.symbol] || settings.symbol;
         if (settings.groqKey && now - lastAICall > 12000) {
             lastAICall = now;
-            const prompt = `Current ${name} analysis:
+            const prompt = `Current XAUUSD (Gold) analysis:
 Price: ${price.toFixed(2)}
 Fast EMA: ${emaFastState?.toFixed(2)}
 Mid EMA: ${emaMidState?.toFixed(2)}
@@ -597,9 +523,9 @@ Gap Fast-Mid: ${gapFastMid.toFixed(3)}%
 Gap Mid-Slow: ${gapMidSlow.toFixed(3)}%
 Solid Bull: ${solidBull}
 Solid Bear: ${solidBear}
-Current signal status: ${currentSignal || 'neutral'}
+Current signal: ${currentSignal || 'neutral'}
 
-Give a short trading insight.`;
+Give a short trading insight for Gold.`;
             const aiReply = await callGroqAI(prompt);
             if (aiReply) {
                 document.getElementById('aiText').innerText = aiReply;
@@ -607,40 +533,472 @@ Give a short trading insight.`;
                 return;
             }
         }
-        document.getElementById('aiText').innerText = ruleBasedAI(solidBull, solidBear, rsi, mom);
+        document.getElementById('aiText').innerText = ruleBasedAI(solidBull, solidBear, rsi);
         document.getElementById('aiSource').innerText = settings.groqKey ? 'Groq unavailable → Rule-based AI' : 'Rule-based AI (add Groq key for real AI)';
     }
 
-    // The rest of the JavaScript (chart, websocket, evaluation, etc.) remains the same as the previous BTCUSD version.
-    // Only the symbol list, names, and AI prompts were updated for XAUUSD support.
+    // Chart functions
+    function resetChart() {
+        chartPoints = [];
+        entryMarkers = [];
+        emaFastSeries = []; emaMidSeries = []; emaSlowSeries = [];
+        const c = document.getElementById('priceChart');
+        if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+        document.getElementById('chartMaxLabel').innerText = '';
+        document.getElementById('chartMinLabel').innerText = '';
+        document.getElementById('chartEmptyMsg').style.display = 'flex';
+    }
 
-    // ---------- (Full remaining functions are identical to the previous working version) ----------
-    // To keep the response clean, the complete working code is the same structure as before,
-    // just with the updated SYMBOL_NAMES and default handling for both BTCUSD and XAUUSD.
+    function pushChartPoint(t, p, ef, em, es) {
+        chartPoints.push({ time: t, price: p });
+        if (ef !== null) emaFastSeries.push(ef);
+        if (em !== null) emaMidSeries.push(em);
+        if (es !== null) emaSlowSeries.push(es);
+        if (chartPoints.length > CHART_MAX_POINTS) {
+            chartPoints.shift();
+            if (emaFastSeries.length > CHART_MAX_POINTS) emaFastSeries.shift();
+            if (emaMidSeries.length > CHART_MAX_POINTS) emaMidSeries.shift();
+            if (emaSlowSeries.length > CHART_MAX_POINTS) emaSlowSeries.shift();
+        }
+        if (chartPoints.length) {
+            const oldest = chartPoints[0].time;
+            entryMarkers = entryMarkers.filter(m => m.time >= oldest);
+        }
+        drawChart();
+    }
 
-    // You can copy the full previous script and only replace the SYMBOL_NAMES and the AI prompt parts shown above.
-    // For convenience, here is the key part that changes:
+    function addEntryMarker(t, p, dir) {
+        entryMarkers.push({ time: t, price: p, direction: dir });
+        if (entryMarkers.length > MAX_MARKERS) entryMarkers.shift();
+        drawChart();
+    }
+
+    function drawChart() {
+        const canvas = document.getElementById('priceChart');
+        if (!canvas || chartPoints.length < 2) return;
+        document.getElementById('chartEmptyMsg').style.display = 'none';
+
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const W = rect.width, H = rect.height;
+        ctx.clearRect(0, 0, W, H);
+
+        const prices = chartPoints.map(p => p.price);
+        let allVals = prices.slice();
+        if (emaFastSeries.length) allVals = allVals.concat(emaFastSeries);
+        if (emaMidSeries.length) allVals = allVals.concat(emaMidSeries);
+        if (emaSlowSeries.length) allVals = allVals.concat(emaSlowSeries);
+
+        let min = Math.min(...allVals), max = Math.max(...allVals);
+        if (min === max) { min -= 1; max += 1; }
+        const pad = (max - min) * 0.12;
+        min -= pad; max += pad;
+
+        const stepX = W / (chartPoints.length - 1);
+        const sy = v => H - ((v - min) / (max - min)) * H;
+
+        // fill
+        ctx.beginPath();
+        ctx.moveTo(0, sy(prices[0]));
+        prices.forEach((p, i) => ctx.lineTo(i * stepX, sy(p)));
+        ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+        const g = ctx.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, 'rgba(0,188,212,0.18)');
+        g.addColorStop(1, 'rgba(0,188,212,0)');
+        ctx.fillStyle = g; ctx.fill();
+
+        // price line
+        ctx.beginPath();
+        prices.forEach((p, i) => {
+            const x = i * stepX, y = sy(p);
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = '#00bcd4';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        // EMAs
+        function drawEma(series, color, width) {
+            if (series.length < 2) return;
+            const offset = chartPoints.length - series.length;
+            ctx.beginPath();
+            series.forEach((v, i) => {
+                const x = (i + offset) * stepX;
+                const y = sy(v);
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.stroke();
+        }
+        drawEma(emaSlowSeries, '#ce93d8', 1.6);
+        drawEma(emaMidSeries,  '#ff9800', 1.5);
+        drawEma(emaFastSeries, '#00e5ff', 1.4);
+
+        // last point
+        ctx.beginPath();
+        ctx.arc((prices.length-1)*stepX, sy(prices[prices.length-1]), 3.8, 0, Math.PI*2);
+        ctx.fillStyle = '#00e5ff';
+        ctx.fill();
+
+        // arrows
+        entryMarkers.forEach(m => {
+            let idx = 0, best = Infinity;
+            for (let i = 0; i < chartPoints.length; i++) {
+                const d = Math.abs(chartPoints[i].time - m.time);
+                if (d < best) { best = d; idx = i; }
+            }
+            const x = idx * stepX, y = sy(m.price);
+            if (m.direction === 'buy') {
+                ctx.beginPath();
+                ctx.moveTo(x, y - 14);
+                ctx.lineTo(x - 9, y + 4);
+                ctx.lineTo(x + 9, y + 4);
+                ctx.closePath();
+                ctx.fillStyle = '#4caf50';
+                ctx.fill();
+                ctx.fillStyle = '#a5d6a7';
+                ctx.font = 'bold 11px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText('BUY', x, y - 18);
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(x, y + 14);
+                ctx.lineTo(x - 9, y - 4);
+                ctx.lineTo(x + 9, y - 4);
+                ctx.closePath();
+                ctx.fillStyle = '#f44336';
+                ctx.fill();
+                ctx.fillStyle = '#ef9a9a';
+                ctx.font = 'bold 11px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText('SELL', x, y + 28);
+            }
+        });
+
+        document.getElementById('chartMaxLabel').innerText = max.toFixed(2);
+        document.getElementById('chartMinLabel').innerText = min.toFixed(2);
+    }
+
+    window.addEventListener('resize', () => { if (chartPoints.length >= 2) drawChart(); });
+
+    // Storage
+    function loadSettings() {
+        try {
+            const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if (s) settings = Object.assign(settings, s);
+        } catch(e){}
+        try {
+            const h = JSON.parse(localStorage.getItem(HISTORY_KEY));
+            if (Array.isArray(h)) tradeHistory = h;
+        } catch(e){}
+    }
+    function saveSettings() { localStorage.setItem(STORAGE_KEY, JSON.stringify(settings)); }
+    function saveHistory() { localStorage.setItem(HISTORY_KEY, JSON.stringify(tradeHistory)); }
 
     function applySettingsToForm() {
-        document.getElementById('symbolSelect').value = settings.symbol;
-        document.getElementById('strategySelect').value = settings.strategy;
         document.getElementById('fastPeriod').value = settings.fastPeriod;
         document.getElementById('slowPeriod').value = settings.slowPeriod;
         document.getElementById('trendPeriod').value = settings.trendPeriod;
         document.getElementById('tpOffset').value = settings.tpOffset;
         document.getElementById('confirmTicks').value = settings.confirmTicks;
         document.getElementById('minSeparation').value = settings.minSeparation;
-        document.getElementById('windowSize').value = settings.windowSize;
-        document.getElementById('digitThreshold').value = settings.digitThreshold;
         document.getElementById('groqKey').value = settings.groqKey || '';
         document.getElementById('soundToggle').checked = settings.sound;
         document.getElementById('notifyToggle').checked = settings.notify;
-        document.getElementById('dashTitle').innerText = (SYMBOL_NAMES[settings.symbol] || settings.symbol) + ' Trend Sniper';
-        document.getElementById('priceLabel').innerText = 'REAL-TIME TICK PRICE (' + (SYMBOL_NAMES[settings.symbol] || settings.symbol) + ')';
-        updateStrategyVisibility();
     }
 
-    // ... (all other functions stay exactly the same as the last full BTCUSD version)
+    function readSettingsFromForm() {
+        settings.fastPeriod = parseInt(document.getElementById('fastPeriod').value) || 14;
+        settings.slowPeriod = parseInt(document.getElementById('slowPeriod').value) || 30;
+        settings.trendPeriod = parseInt(document.getElementById('trendPeriod').value) || 80;
+        settings.tpOffset = parseFloat(document.getElementById('tpOffset').value) || 80;
+        settings.confirmTicks = parseInt(document.getElementById('confirmTicks').value) || 5;
+        settings.minSeparation = parseFloat(document.getElementById('minSeparation').value) || 0.04;
+        settings.groqKey = document.getElementById('groqKey').value.trim();
+        settings.sound = document.getElementById('soundToggle').checked;
+        settings.notify = document.getElementById('notifyToggle').checked;
+        return true;
+    }
+
+    function logError(m) { document.getElementById('logConsole').innerText = m || ''; }
+
+    function ensureNotifyPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }
+
+    function sendNotification(dir, price) {
+        if (!settings.notify || !('Notification' in window) || Notification.permission !== 'granted') return;
+        const title = (dir === 'buy' ? '🟢 SOLID BUY' : '🔴 SOLID SELL') + ' — XAUUSD';
+        const body = `Entry ${price.toFixed(2)} | TP ${(dir === 'buy' ? price + settings.tpOffset : price - settings.tpOffset).toFixed(2)}`;
+        try { new Notification(title, { body }); } catch(e){}
+    }
+
+    function playBeep(dir) {
+        if (!settings.sound) return;
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g); g.connect(audioCtx.destination);
+            o.frequency.value = dir === 'buy' ? 880 : 440;
+            o.type = 'sine';
+            g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+            o.start(); o.stop(audioCtx.currentTime + 0.35);
+        } catch(e){}
+    }
+
+    // WebSocket
+    function clearPing() {
+        if (pingTimer) { clearInterval(pingTimer); pingTimer = null; }
+    }
+
+    function initWebSocket() {
+        if (ws) { try { ws.onclose = null; ws.close(); } catch(e){} }
+        clearPing();
+
+        priceHistory = [];
+        emaFastState = emaMidState = emaSlowState = null;
+        emaFastSeries = []; emaMidSeries = []; emaSlowSeries = [];
+        currentSignal = null; pendingSignal = null; pendingCount = 0;
+        resetChart();
+        document.getElementById('signalContainer').className = 'signal-box signal-neutral';
+        document.getElementById('signalContainer').innerText = 'Collecting data...';
+        document.getElementById('aiText').innerText = 'Waiting for market data...';
+        document.getElementById('aiSource').innerText = '';
+
+        ws = new WebSocket(PUBLIC_WS);
+
+        ws.onopen = () => {
+            document.getElementById('connectionStatus').innerText = 'Connected (Public)';
+            document.getElementById('connectionStatus').className = 'status-badge connected';
+            logError('');
+            pingTimer = setInterval(() => {
+                if (ws && ws.readyState === 1) ws.send(JSON.stringify({ ping: 1 }));
+            }, PING_MS);
+
+            ws.send(JSON.stringify({
+                ticks_history: SYMBOL,
+                adjust_start_time: 1,
+                count: CHART_MAX_POINTS,
+                end: 'latest',
+                style: 'ticks',
+                subscribe: 1
+            }));
+        };
+
+        ws.onmessage = (ev) => {
+            let data;
+            try { data = JSON.parse(ev.data); } catch(e){ return; }
+            if (data.error) {
+                logError('API: ' + (data.error.message || ''));
+                return;
+            }
+            if (data.msg_type === 'ping') return;
+
+            if (data.msg_type === 'history' && data.history) {
+                const prices = data.history.prices || [];
+                const times = data.history.times || [];
+                for (let i = 0; i < prices.length; i++) {
+                    const p = parseFloat(prices[i]);
+                    if (!Number.isFinite(p)) continue;
+                    const t = Number(times[i]) * 1000;
+                    priceHistory.push(p);
+                    emaFastState = updateEMA(emaFastState, p, settings.fastPeriod);
+                    emaMidState  = updateEMA(emaMidState,  p, settings.slowPeriod);
+                    emaSlowState = updateEMA(emaSlowState, p, settings.trendPeriod);
+                    pushChartPoint(t, p, emaFastState, emaMidState, emaSlowState);
+                }
+                if (prices.length) {
+                    const lp = parseFloat(prices[prices.length-1]);
+                    document.getElementById('livePrice').innerText = lp.toFixed(2);
+                    document.getElementById('lastUpdate').innerText = 'Last tick: ' + new Date().toLocaleTimeString();
+                    evaluateSolidTrend(lp, Number(times[times.length-1])*1000);
+                }
+                return;
+            }
+
+            if (data.msg_type === 'tick' && data.tick) {
+                const p = parseFloat(data.tick.quote);
+                if (!Number.isFinite(p)) return;
+                const t = (data.tick.epoch || 0) * 1000;
+                document.getElementById('livePrice').innerText = p.toFixed(2);
+                document.getElementById('lastUpdate').innerText = 'Last tick: ' + new Date(t).toLocaleTimeString();
+                priceHistory.push(p);
+                emaFastState = updateEMA(emaFastState, p, settings.fastPeriod);
+                emaMidState  = updateEMA(emaMidState,  p, settings.slowPeriod);
+                emaSlowState = updateEMA(emaSlowState, p, settings.trendPeriod);
+                if (priceHistory.length > 200) priceHistory.shift();
+                pushChartPoint(t, p, emaFastState, emaMidState, emaSlowState);
+                evaluateSolidTrend(p, t);
+            }
+        };
+
+        ws.onclose = () => {
+            clearPing();
+            document.getElementById('connectionStatus').innerText = 'Disconnected';
+            document.getElementById('connectionStatus').className = 'status-badge disconnected';
+            logError('Reconnecting in 3s...');
+            setTimeout(initWebSocket, 3000);
+        };
+        ws.onerror = () => logError('WebSocket error');
+    }
+
+    function evaluateSolidTrend(price, epochMs) {
+        const box = document.getElementById('signalContainer');
+        const entryEl = document.getElementById('entryPrice');
+        const tpEl = document.getElementById('takeProfitPrice');
+        const trendEl = document.getElementById('trendInfo');
+
+        if (emaFastState === null || emaMidState === null || emaSlowState === null) {
+            box.innerText = `Warming up EMAs (${priceHistory.length})...`;
+            return;
+        }
+
+        const rsi = calculateRSI(settings.rsiPeriod);
+        const mom = recentMomentum(10);
+        const gapFastMid = Math.abs((emaFastState - emaMidState) / emaMidState) * 100;
+        const gapMidSlow = Math.abs((emaMidState - emaSlowState) / emaSlowState) * 100;
+
+        const solidBull =
+            emaFastState > emaMidState &&
+            emaMidState > emaSlowState &&
+            price > emaSlowState &&
+            gapFastMid >= settings.minSeparation * 0.7 &&
+            gapMidSlow >= settings.minSeparation * 0.5 &&
+            (rsi === null || rsi < settings.rsiBuyMax) &&
+            mom > 0.015;
+
+        const solidBear =
+            emaFastState < emaMidState &&
+            emaMidState < emaSlowState &&
+            price < emaSlowState &&
+            gapFastMid >= settings.minSeparation * 0.7 &&
+            gapMidSlow >= settings.minSeparation * 0.5 &&
+            (rsi === null || rsi > settings.rsiSellMin) &&
+            mom < -0.015;
+
+        updateAI(solidBull, solidBear, rsi, mom, gapFastMid, gapMidSlow, price);
+
+        if (solidBull) trendEl.innerText = 'Trend: 🟢 SOLID LONG UP  |  RSI ' + (rsi ? rsi.toFixed(0) : '—');
+        else if (solidBear) trendEl.innerText = 'Trend: 🔴 SOLID LONG DOWN  |  RSI ' + (rsi ? rsi.toFixed(0) : '—');
+        else if (emaFastState > emaMidState && emaMidState > emaSlowState)
+            trendEl.innerText = 'Trend: weak up / waiting  |  RSI ' + (rsi ? rsi.toFixed(0) : '—');
+        else if (emaFastState < emaMidState && emaMidState < emaSlowState)
+            trendEl.innerText = 'Trend: weak down / waiting  |  RSI ' + (rsi ? rsi.toFixed(0) : '—');
+        else
+            trendEl.innerText = 'Trend: ranging / no setup  |  RSI ' + (rsi ? rsi.toFixed(0) : '—');
+
+        let raw = 'neutral';
+        if (solidBull) raw = 'buy';
+        else if (solidBear) raw = 'sell';
+
+        if (raw === 'buy' || raw === 'sell') {
+            if (pendingSignal === raw) pendingCount++;
+            else { pendingSignal = raw; pendingCount = 1; }
+        } else {
+            pendingSignal = null;
+            pendingCount = 0;
+        }
+
+        let final = 'neutral';
+        if (pendingCount >= settings.confirmTicks) final = pendingSignal;
+
+        if (final === 'buy') {
+            const tp = price + settings.tpOffset;
+            box.className = 'signal-box signal-buy';
+            box.innerText = '▲ SOLID BUY  •  Confirmed';
+            entryEl.innerText = price.toFixed(2);
+            tpEl.innerText = tp.toFixed(2);
+            if (final !== currentSignal) recordSignal('buy', price, tp, epochMs);
+        } else if (final === 'sell') {
+            const tp = price - settings.tpOffset;
+            box.className = 'signal-box signal-sell';
+            box.innerText = '▼ SOLID SELL  •  Confirmed';
+            entryEl.innerText = price.toFixed(2);
+            tpEl.innerText = tp.toFixed(2);
+            if (final !== currentSignal) recordSignal('sell', price, tp, epochMs);
+        } else {
+            box.className = 'signal-box signal-neutral';
+            if (pendingSignal) {
+                box.innerText = `Building ${pendingSignal.toUpperCase()} (${pendingCount}/${settings.confirmTicks})`;
+            } else {
+                box.innerText = 'NO SOLID LONG TREND  •  Waiting';
+            }
+            entryEl.innerText = '--';
+            tpEl.innerText = '--';
+        }
+        currentSignal = final;
+    }
+
+    function recordSignal(dir, price, tp, epochMs) {
+        if (epochMs) addEntryMarker(epochMs, price, dir);
+        const entry = {
+            time: new Date().toLocaleTimeString(),
+            direction: dir,
+            entry: price.toFixed(2),
+            tp: tp.toFixed(2)
+        };
+        tradeHistory.unshift(entry);
+        if (tradeHistory.length > 25) tradeHistory.pop();
+        saveHistory();
+        renderHistory();
+        playBeep(dir);
+        sendNotification(dir, price);
+    }
+
+    function renderHistory() {
+        const body = document.getElementById('historyBody');
+        const empty = document.getElementById('emptyHistoryMsg');
+        body.innerHTML = '';
+        if (!tradeHistory.length) {
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+        tradeHistory.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.time}</td>
+                <td class="dir-${item.direction}">${item.direction.toUpperCase()}</td>
+                <td>${item.entry}</td>
+                <td>${item.tp}</td>`;
+            body.appendChild(tr);
+        });
+    }
+
+    document.getElementById('applyBtn').addEventListener('click', () => {
+        if (!readSettingsFromForm()) return;
+        saveSettings();
+        applySettingsToForm();
+        if (settings.notify) ensureNotifyPermission();
+        initWebSocket();
+    });
+
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+        tradeHistory = [];
+        saveHistory();
+        renderHistory();
+    });
+
+    document.getElementById('notifyToggle').addEventListener('change', e => {
+        if (e.target.checked) ensureNotifyPermission();
+    });
+
+    window.onload = () => {
+        loadSettings();
+        applySettingsToForm();
+        renderHistory();
+        if (settings.notify) ensureNotifyPermission();
+        initWebSocket();
+    };
 </script>
 </body>
 </html>
